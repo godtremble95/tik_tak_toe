@@ -43,13 +43,56 @@ class Game
       end
       puts "#{curr_player.name} chooses block #{sel_block}"
       curr_player.claimed_blocks << sel_block
-      check_for_win if i >= (@board.grid_size - 1)
+      if i >= (@board.grid_size - 1) && player_won?(curr_player)
+        game_won(curr_player)
+        break
+      end
+      game_tied if i >= (@board.grid_size ** 2) - 1
+    end
+    puts get_score
+    play_agian if new_game?
+  end
+
+  def play_agian
+    @player_1.reset_blocks
+    @player_2.reset_blocks
+    play
+  end
+
+  def new_game?
+    begin
+      print "New Game? (Y/n): "
+      case gets.chomp
+      when "y", "Y", ""
+        return true
+      when "n", "N"
+        return false
+      else
+        raise
+      end
+    rescue
+      print "\e[1F\e[2K"
+      retry
     end
   end
 
-  def check_for_win
-    #work on this next
-    #@LINES.any? { |a| (a - curr_player.claimed_blocks).empty?}
+  def player_won?(player)
+    @LINES.any? { |a| (a - player.claimed_blocks).empty?}
+  end
+
+  def game_won(winner)
+    @board.draw
+    puts "#{winner.name} has won!\n"
+    winner.increase_score
+  end
+
+  def game_tied
+    @board.draw
+    puts "It's a draw!\n"
+  end
+
+  def get_score
+    "Current score:\n#{@player_1}\n#{@player_2}\n"
   end
 
 end

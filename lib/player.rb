@@ -31,12 +31,15 @@ class Player
     end
   end
 
-  def to_s
+  def increase_score
+    @score += 1
+  end
 
-    "#{name}\n
-    #{is_comp}\n
-    #{x_o}\n
-    #{score}\n
-    #{claimed_blocks}\n\n"
+  def reset_blocks
+    @claimed_blocks = []
+  end
+
+  def to_s
+    "#{@name}:\t#{@score}"
   end
 end
