@@ -1,26 +1,25 @@
 require_relative "board"
 require_relative "player"
 
+# The game it's own object, could be useful if the future
 class Game
-
   def initialize
     @LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 4, 7], [2, 5, 8], [3, 6, 9], [1, 5, 9], [3, 5, 7]]
-    @player_1 = player_setup("X")
-    @player_2 = player_setup("O")
-    @board = Board.new(@player_1, @player_2)
+    @player1 = player_setup("X")
+    @player2 = player_setup("O")
+    @board = Board.new(@player1, @player2)
   end
 
   def player_setup(x_o)
-    name = "Player '#{x_o}'"
     is_comp = false
-    print "Enter name for #{name}, or type 'C' for computer: "
+    print "Enter name for Player '#{x_o}', or type 'C' for computer: "
     input = gets.chomp
     case input
     when "c", "C"
       name = "Comp '#{x_o}'"
       is_comp = true
     when ""
-
+      name = "Player '#{x_o}'"
     else
       name = input
     end
@@ -28,18 +27,19 @@ class Game
   end
 
   def play
-    (@board.grid_size ** 2).times do |i|
+    (@board.grid_size**2).times do |i|
       sel_block = 0
       @board.draw
-      if i.even?
-        curr_player = @player_1
-      else
-        curr_player = @player_2
-      end
+      curr_player = if i.even?
+                      @player1
+                    else
+                      @player2
+                    end
       loop do
         sel_block = curr_player.choose_block
-        break if not [@player_1.claimed_blocks, @player_2.claimed_blocks].any? { |arr| arr.include? sel_block}
-        puts "Block #{sel_block} is already taken" if not curr_player.is_comp
+        break unless [@player1.claimed_blocks, @player2.claimed_blocks].any? { |arr| arr.include? sel_block }
+
+        puts "Block #{sel_block} is already taken" unless curr_player.is_comp
       end
       puts "#{curr_player.name} chooses block #{sel_block}"
       curr_player.claimed_blocks << sel_block
@@ -47,37 +47,35 @@ class Game
         game_won(curr_player)
         break
       end
-      game_tied if i >= (@board.grid_size ** 2) - 1
+      game_tied if i >= (@board.grid_size**2) - 1
     end
-    puts get_score
+    puts score
     play_agian if new_game?
   end
 
   def play_agian
-    @player_1.reset_blocks
-    @player_2.reset_blocks
+    @player1.reset_blocks
+    @player2.reset_blocks
     play
   end
 
   def new_game?
-    begin
-      print "New Game? (Y/n): "
-      case gets.chomp
-      when "y", "Y", ""
-        return true
-      when "n", "N"
-        return false
-      else
-        raise
-      end
-    rescue
-      print "\e[1F\e[2K"
-      retry
+    print "New Game? (Y/n): "
+    case gets.chomp
+    when "y", "Y", ""
+      true
+    when "n", "N"
+      false
+    else
+      raise
     end
+  rescue StandardError
+    print "\e[1F\e[2K"
+    retry
   end
 
   def player_won?(player)
-    @LINES.any? { |a| (a - player.claimed_blocks).empty?}
+    @LINES.any? { |a| (a - player.claimed_blocks).empty? }
   end
 
   def game_won(winner)
@@ -91,8 +89,7 @@ class Game
     puts "It's a draw!\n"
   end
 
-  def get_score
-    "Current score:\n#{@player_1}\n#{@player_2}\n"
+  def score
+    "Current score:\n#{@player1}\n#{@player2}\n"
   end
-
 end

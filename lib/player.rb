@@ -1,4 +1,4 @@
-
+# Player objects to retain players' respective data throughout the game(s)
 class Player
   attr_reader :name, :is_comp, :x_o, :score, :claimed_blocks
 
@@ -11,20 +11,18 @@ class Player
   end
 
   def choose_block
-    if self.is_comp
-      puts "#{self.name} is choosing..."
+    if is_comp
+      puts "#{name} is choosing..."
       sleep 2
-      return Random.rand(9) + 1
+      Random.rand(1..9)
     else
       begin
-        print "#{self.name}, choose a block to claim (1-9): "
+        print "#{name}, choose a block to claim (1-9): "
         sel_block = gets.chomp.to_i
-        if (1..9).cover? sel_block
-          return sel_block
-        else
-          raise
-        end
-      rescue
+        return sel_block if (1..9).cover? sel_block
+
+        raise
+      rescue StandardError
         print "\e[1F\e[2K"
         retry
       end
